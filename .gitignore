@@ -6,3 +6,11 @@ __pycache__/
 venv/
 *.egg-info/
 .pytest_cache/
+Data/
+SESSION_MEMORY.md
+*.txt
+Code1.py
+Code2.py
+Connectivitycode.py
+sub_body.json
+policy_body.json

@@ -1,6 +1,0 @@
-﻿{
-  "properties": {
-    "format": "xml",
-    "value": "<policies><inbound><base /><set-header name=\"X-MTU-Source\" exists-action=\"override\"><value>Azure-APIM-Gateway</value></set-header></inbound><backend><base /></backend><outbound><base /><set-header name=\"X-Powered-By\" exists-action=\"override\"><value>Databricks-Silver-Layer</value></set-header></outbound><on-error><base /></on-error></policies>"
-  }
-}
