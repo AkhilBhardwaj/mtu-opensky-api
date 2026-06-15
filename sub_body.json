@@ -1,0 +1,7 @@
+﻿{
+  "properties": {
+    "scope": "/subscriptions/6514bb50-f666-4a50-8308-e4a1b9a1a261/resourceGroups/AkhilsJuneResourceGroup/providers/Microsoft.ApiManagement/service/akhil-opensky-apim/apis/opensky-api",
+    "displayName": "MTU Demo Key",
+    "state": "active"
+  }
+}

@@ -1,0 +1,70 @@
+name: Build and Deploy to ACI
+
+on:
+  push:
+    branches: [main]
+
+env:
+  ACR_LOGIN_SERVER: akhilopenskyacr.azurecr.io
+  IMAGE_NAME: opensky-api
+  CONTAINER_NAME: opensky-api
+  RESOURCE_GROUP: AkhilsJuneResourceGroup
+  DNS_LABEL: opensky-api-akhil
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to Azure Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.ACR_LOGIN_SERVER }}
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ env.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:latest
+            ${{ env.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+
+      - name: Log in to Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Redeploy ACI container
+        uses: azure/CLI@v2
+        with:
+          inlineScript: |
+            az container delete \
+              --resource-group ${{ env.RESOURCE_GROUP }} \
+              --name ${{ env.CONTAINER_NAME }} \
+              --yes 2>/dev/null || true
+
+            az container create \
+              --resource-group ${{ env.RESOURCE_GROUP }} \
+              --name ${{ env.CONTAINER_NAME }} \
+              --image ${{ env.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:${{ github.sha }} \
+              --cpu 1 --memory 1 \
+              --registry-login-server ${{ env.ACR_LOGIN_SERVER }} \
+              --registry-username ${{ secrets.ACR_USERNAME }} \
+              --registry-password ${{ secrets.ACR_PASSWORD }} \
+              --dns-name-label ${{ env.DNS_LABEL }} \
+              --ports 8000 \
+              --os-type Linux \
+              --environment-variables \
+                DATABRICKS_SERVER_HOSTNAME=${{ secrets.DATABRICKS_SERVER_HOSTNAME }} \
+                DATABRICKS_HTTP_PATH=${{ secrets.DATABRICKS_HTTP_PATH }} \
+                DATABRICKS_TOKEN=${{ secrets.DATABRICKS_TOKEN }}
+
+      - name: Print live URL
+        run: |
+          echo "Deployed: http://opensky-api-akhil.westeurope.azurecontainer.io:8000/docs"

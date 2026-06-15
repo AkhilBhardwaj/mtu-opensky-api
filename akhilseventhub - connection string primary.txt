@@ -1,0 +1,1 @@
+Endpoint=sb://akhilseventhub.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=kfgM4MOJ1weKeNpEFut430/++JwpzcM9R+AEhIdDAQE=
